@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: >
+      Couche Silver — Données nettoyées et typées. 33 colonnes sélectionnées
+      depuis les 53 colonnes brutes. Exclusions : PII, redondances (r=1.0),
+      colonnes vides.
+    columns:
+      - name: order_id
+        description: "Identifiant unique de la commande"
+        data_tests: [not_null]
+      - name: order_item_id
+        description: "Identifiant unique de la ligne de commande"
+        data_tests: [unique, not_null]
+      - name: product_id
+        data_tests: [not_null]
+      - name: order_date
+        data_tests: [not_null]
+      - name: shipping_date
+        data_tests: [not_null]
+      - name: days_shipping_real
+        data_tests: [not_null]
+      - name: days_shipping_scheduled
+        data_tests: [not_null]
+      - name: order_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  ["COMPLETE", "PENDING", "CLOSED", "PENDING_PAYMENT",
+                   "CANCELED", "PROCESSING", "SUSPECTED_FRAUD",
+                   "ON_HOLD", "PAYMENT_REVIEW"]
+      - name: delivery_status
+        data_tests: [not_null]
+      - name: shipping_mode
+        data_tests: [not_null]
+      - name: quantity
+        data_tests: [not_null]
+      - name: sales_amount
+        data_tests: [not_null]
+      - name: market
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["Africa", "Europe", "LATAM", "Pacific Asia", "USCA"]
+      - name: customer_segment
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Consumer", "Corporate", "Home Office"]
+      - name: transaction_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["TRANSFER", "PAYMENT", "DEBIT", "PURCHASE", "CASH"]
+
+  - name: anomalies_orders
+    description: >
+      Table de rejet — lignes où shipping_date < order_date.
+      Permet l'audit sans bloquer le pipeline.
+    columns:
+      - name: order_id
+      - name: order_item_id
+      - name: order_date
+      - name: shipping_date
+      - name: rejection_reason

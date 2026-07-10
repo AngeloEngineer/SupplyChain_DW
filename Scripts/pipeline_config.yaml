@@ -1,0 +1,32 @@
+# ==============================================================================
+# Pipeline Configuration — Supply Chain Ingestion
+# ==============================================================================
+
+database:
+  connection_string: "mssql+pyodbc://@ANGELO-DESKTOP/SupplyChain_DW?driver=ODBC+Driver+17+for+SQL+Server&trusted_connection=yes"
+  schema_landing: bronze
+  schema_staging: silver
+  schema_warehouse: gold
+  schema_mart: analytics
+
+ingestion:
+  source_csv: "C:/Users/angel/OneDrive/Desktop/SupplyChain_DW/data/DataCoSupplyChainDataset.csv"
+  encoding: latin-1
+  date_columns:
+    - "order date (DateOrders)"
+    - "shipping date (DateOrders)"
+  batch_size: 500
+  watermark_table: bronze.watermark_tracking
+  watermark_column: last_load_date
+  target_table: bronze.orders
+
+pipeline:
+  max_retries: 3
+  retry_delay_seconds: 5
+  chunk_size: 500
+  log_file: "logs/pipeline.log"
+  metadata_table: bronze.batch_metadata
+
+quality:
+  min_rows_per_batch: 1
+  max_null_pct: 0.5

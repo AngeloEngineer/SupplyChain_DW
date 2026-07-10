@@ -1,0 +1,25 @@
+# ==============================================================================
+# Supply Chain Intelligence Platform — Python Dependencies
+# ==============================================================================
+# Installation :
+#   pip install -r requirements.txt
+# ==============================================================================
+
+# --- Data Processing ---
+pandas>=2.0.0
+numpy>=1.24.0
+
+# --- SQL Server Connectivity ---
+pyodbc>=5.0.0
+sqlalchemy>=2.0.0
+
+# --- dbt (optional — run via CLI) ---
+# dbt-core is installed separately via pip in the venv
+# See: https://docs.getdbt.com/docs/core/installation
+
+# --- Development ---
+jupyter>=1.0.0
+ipython>=8.0.0
+
+# --- Testing ---
+pytest>=8.0.0

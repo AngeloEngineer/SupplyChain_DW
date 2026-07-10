@@ -1,0 +1,63 @@
+version: 2
+
+models:
+  - name: v_kpi_summary
+    description: "KPIs globaux mensuels (OTIF, ventes, rentabilité)"
+    columns:
+      - name: year
+        data_tests:
+          - not_null
+      - name: month
+        data_tests:
+          - not_null
+      - name: total_orders
+      - name: total_sales
+      - name: total_profit
+      - name: otif_rate
+      - name: on_time_rate
+      - name: in_full_rate
+      - name: profit_margin_pct
+      - name: loss_rate_pct
+
+  - name: v_kpi_otif_detail
+    description: "Détail OTIF par marché, mode livraison, segment client"
+    columns:
+      - name: year
+      - name: market
+      - name: total_orders
+      - name: otif_rate
+      - name: on_time_rate
+      - name: late_delivery_rate
+
+  - name: v_kpi_profitability
+    description: "Analyse de rentabilité par marché, catégorie, segment"
+    columns:
+      - name: year
+      - name: market
+      - name: category_name
+      - name: total_sales
+      - name: total_profit
+      - name: profit_margin_pct
+      - name: loss_rate_pct
+
+  - name: v_adv_trends
+    description: "Tendances avec fenêtrage (moyennes mobiles, YoY, cumuls)"
+    columns:
+      - name: year_month
+      - name: market
+      - name: sales
+      - name: sales_ma_3m
+      - name: sales_mom_pct
+      - name: sales_yoy_pct
+
+  - name: v_geo_explorer
+    description: "Hiérarchie géographique (ville > état > pays > région > marché)"
+    columns:
+      - name: geo_id
+        data_tests:
+          - unique
+          - not_null
+      - name: geo_full_path
+
+  - name: v_data_quality
+    description: "Métriques de qualité des données"

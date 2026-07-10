@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Dimension temps enrichie (attributs fiscaux, indicateurs)"
+    columns:
+      - name: date_key
+        data_tests:
+          - unique
+          - not_null
+      - name: date
+        data_tests:
+          - unique
+          - not_null
+      - name: year_month
+      - name: year_quarter
+      - name: is_weekend
+      - name: is_month_start
+      - name: is_month_end
+
+  - name: dim_product_hierarchy
+    description: "Hiérarchie produit : département → catégorie"
+    columns:
+      - name: hierarchy_id
+        data_tests:
+          - unique
+          - not_null
+      - name: category_id
+        data_tests:
+          - not_null
+      - name: category_full_path

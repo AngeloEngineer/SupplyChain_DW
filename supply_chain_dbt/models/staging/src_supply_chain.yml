@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: supply_chain_raw
+    database: SupplyChain_DW
+    schema: bronze
+    tables:
+      - name: orders
+        description: "Données brutes de commandes ingérées depuis le CSV DataCo"
+        loaded_at_field: _loaded_at
+        freshness:
+          warn_after: { count: 24, period: hour }
+          error_after: { count: 48, period: hour }
+        columns:
+          - name: Order Id
+            description: "Identifiant unique de la commande"
+          - name: Order Item Id
+            description: "Identifiant unique de la ligne de commande"
+          - name: order date (DateOrders)
+            description: "Date de passation de la commande"
+          - name: Shipping date (DateOrders)
+            description: "Date d'expédition"
+          - name: Order Status
+            description: "Statut de la commande (COMPLETE, PENDING, CANCELED, etc.)"
+          - name: Delivery Status
+            description: "Statut de livraison"
+          - name: Shipping Mode
+            description: "Mode d'expédition (Standard Class, First Class, etc.)"
+          - name: Product Card Id
+            description: "Identifiant produit"
+          - name: Category Id
+            description: "Identifiant catégorie"
+          - name: Department Id
+            description: "Identifiant département (proxy entrepôt)"
+          - name: Customer Id
+            description: "Identifiant client"
+          - name: Sales
+            description: "Montant des ventes"
+          - name: Benefit per order
+            description: "Bénéfice par commande"
+          - name: Order Item Quantity
+            description: "Quantité commandée"

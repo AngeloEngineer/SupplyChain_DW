@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Streamlit
+.streamlit/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# CSV data (track only the sample)
+*.csv
+!DataCoSupplyChainDataset.csv
+
+# SQL Server
+*.mdf
+*.ldf
+*.bak
+*.trn
+
+# dbt
+supply_chain_dbt/dbt_packages/
+supply_chain_dbt/logs/
+supply_chain_dbt/target/
+supply_chain_dbt/profiles.yml
+
+# Temp
+C:/Users/angel/AppData/Local/Temp/opencode/
+logs/
+data/*.csv
+!data/.gitkeep
