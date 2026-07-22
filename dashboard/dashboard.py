@@ -156,7 +156,7 @@ if page == "Vue d'ensemble":
             st.metric("Pertes (%)", fmt_pct(df_summary["loss_rate_pct"].mean()))
 
         st.markdown("---")
-        st.subheader("\U0001f4c8 Tendances Mensuelles")
+        st.subheader("Tendances Mensuelles")
 
         dfv = df_summary.copy()
         dfv["year_month_label"] = (
@@ -201,7 +201,7 @@ if page == "Vue d'ensemble":
             )
             st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("\U0001f4cb Données brutes — KPIs mensuels"):
+    with st.expander("Donnees brutes - KPIs mensuels"):
         st.dataframe(df_summary, use_container_width=True)
 
 # ============================================================
@@ -378,7 +378,7 @@ elif page == "OTIF Détail":
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("\U0001f4cb Données brutes"):
+    with st.expander("Donnees brutes"):
         st.dataframe(df_f, use_container_width=True)
 
 # ============================================================
@@ -464,7 +464,7 @@ elif page == "Rentabilité":
     fig.update_layout(height=400)
     st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("\U0001f4cb Données brutes"):
+    with st.expander("Donnees brutes"):
         st.dataframe(df_f, use_container_width=True)
 
 # ============================================================
@@ -548,7 +548,7 @@ elif page == "Tendances":
 
     # Time Intelligence engine inline
     st.markdown("---")
-    st.subheader("\U0001f9ee Time Intelligence Engine (DAX-like)")
+    st.subheader("Time Intelligence Engine (DAX-like)")
     me = MetricsEngine(df_summary)
     df_ti = me.compute()
     cols_ti = [c for c in [
@@ -558,7 +558,7 @@ elif page == "Tendances":
     ] if c in df_ti.columns]
     st.dataframe(df_ti[cols_ti].tail(24), use_container_width=True, hide_index=True)
 
-    with st.expander("\U0001f4cb Données brutes — Tendances"):
+    with st.expander("Donnees brutes - Tendances"):
         st.dataframe(df_f, use_container_width=True)
 
 # ============================================================
@@ -597,7 +597,7 @@ elif page == "Explorateur":
 
         csv = df.to_csv(index=False).encode("utf-8")
         st.download_button(
-            "\U0001f4e5 Télécharger CSV",
+            "Telecharger CSV",
             csv,
             f"{selected_view.split('(')[-1].split(')')[0]}.csv",
             "text/csv"

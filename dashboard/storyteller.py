@@ -107,8 +107,8 @@ class Storyteller:
                 if recent_late > 10:
                     alerts.append({
                         "level": "warning",
-                    "icon": "[WARN]",
-                        "title": "Taux de retard élevé",
+                        "icon": "[WARN]",
+                        "title": "Taux de retard eleve",
                         "message": (
                             f"Taux de retard à {recent_late:.1f}% (cible < 5%). "
                             "Analyser les goulots d'étranglement logistiques."
