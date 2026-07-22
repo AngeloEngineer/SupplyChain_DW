@@ -9,8 +9,9 @@ build/
 venv/
 env/
 
-# Streamlit
+# Streamlit (keep config.toml for cloud deployment)
 .streamlit/
+!.streamlit/config.toml
 
 # IDE
 .vscode/
@@ -23,9 +24,10 @@ env/
 Thumbs.db
 .DS_Store
 
-# CSV data (track only the sample)
+# CSV data (track only the sample + demo data)
 *.csv
 !DataCoSupplyChainDataset.csv
+!demo_data/*.csv
 
 # SQL Server
 *.mdf

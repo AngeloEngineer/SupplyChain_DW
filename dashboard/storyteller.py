@@ -75,7 +75,7 @@ class Storyteller:
             if abs(drop) > 5:
                 alerts.append({
                     "level": "warning",
-                    "icon": "⚠️",
+                    "icon": "[WARN]",
                     "title": "Dégradation OTIF",
                     "message": (
                         f"L'OTIF a chuté de {abs(drop):.1f}% sur les 3 derniers mois "
@@ -90,7 +90,7 @@ class Storyteller:
         if recent_margin and recent_margin < 0:
             alerts.append({
                 "level": "critical",
-                "icon": "🚨",
+                "icon": "[ALERT]",
                 "title": "Marge négative",
                 "message": (
                     f"La marge bénéficiaire est négative ({recent_margin:.1f}%) "
@@ -107,7 +107,7 @@ class Storyteller:
                 if recent_late > 10:
                     alerts.append({
                         "level": "warning",
-                        "icon": "⚠️",
+                    "icon": "[WARN]",
                         "title": "Taux de retard élevé",
                         "message": (
                             f"Taux de retard à {recent_late:.1f}% (cible < 5%). "
@@ -124,7 +124,7 @@ class Storyteller:
                 if last_yoy > 0.2:
                     alerts.append({
                         "level": "positive",
-                        "icon": "📈",
+                        "icon": "[UP]",
                         "title": "Croissance des ventes",
                         "message": (
                             f"Les ventes sont en hausse de {last_yoy*100:.1f}% "
@@ -135,7 +135,7 @@ class Storyteller:
                 elif last_yoy < -0.1:
                     alerts.append({
                         "level": "warning",
-                        "icon": "📉",
+                        "icon": "[DOWN]",
                         "title": "Baisse des ventes YoY",
                         "message": (
                             f"Les ventes baissent de {abs(last_yoy)*100:.1f}% "
@@ -249,12 +249,12 @@ class Storyteller:
 
     def _otif_rating(self, value: float) -> str:
         if value >= 96:
-            return "✅ Excellent"
+            return "[OK] Excellent"
         elif value >= 90:
-            return "⚠️ Satisfaisant"
+            return "[!] Satisfaisant"
         elif value >= 80:
-            return "⚠️ À améliorer"
-        return "❌ Critique"
+            return "[!] A ameliorer"
+        return "[X] Critique"
 
     def _month_name(self, row) -> str:
         months = [

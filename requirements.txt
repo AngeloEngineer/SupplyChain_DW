@@ -1,25 +1,31 @@
 # ==============================================================================
-# Supply Chain Intelligence Platform — Python Dependencies
+# Supply Chain Intelligence Platform — Core Dependencies
 # ==============================================================================
-# Installation :
+# Installation (all features):
 #   pip install -r requirements.txt
+#
+# Streamlit Cloud / demo mode (no SQL Server):
+#   pip install streamlit pandas numpy plotly
 # ==============================================================================
+
+# --- Dashboard & Visualization ---
+streamlit>=1.35.0
+plotly>=5.20.0
 
 # --- Data Processing ---
 pandas>=2.0.0
 numpy>=1.24.0
 
-# --- SQL Server Connectivity ---
-pyodbc>=5.0.0
-sqlalchemy>=2.0.0
-
-# --- dbt (optional — run via CLI) ---
-# dbt-core is installed separately via pip in the venv
-# See: https://docs.getdbt.com/docs/core/installation
+# --- Optional: SQL Server Connectivity ---
+# pyodbc>=5.0.0        # Requires ODBC Driver 17+ for SQL Server on Windows
+# sqlalchemy>=2.0.0    # Only needed if using SQLAlchemy engine
+#
+# For local development with full SQL Server support, install these manually:
+#   pip install pyodbc sqlalchemy
 
 # --- Development ---
-jupyter>=1.0.0
-ipython>=8.0.0
+# jupyter>=1.0.0
+# ipython>=8.0.0
 
 # --- Testing ---
-pytest>=8.0.0
+# pytest>=8.0.0

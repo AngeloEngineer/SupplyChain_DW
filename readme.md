@@ -23,7 +23,14 @@ bronze.orders (CSV brut) → silver.stg_orders (nettoyage) → gold.fct_orders_f
 | `reports/` | Rapport d'analyse unifié |
 | `.github/workflows/` | CI/CD GitHub Actions |
 
-## Lancement
+## Démo en Ligne
+
+**[Lancer le Dashboard](https://share.streamlit.io)** _(remplacez ce lien après déploiement)_
+
+Le dashboard est disponible en ligne grâce à **Streamlit Community Cloud** — aucune installation requise.  
+Les données de démonstration préchargées sont affichées automatiquement (mode Démo).
+
+## Lancement Local (avec SQL Server)
 
 ```powershell
 cd SupplyChain_DW
@@ -31,6 +38,9 @@ venv\Scripts\python.exe -m streamlit run dashboard/dashboard.py
 ```
 
 Ouvrir `http://localhost:8501`
+
+Le dashboard détecte automatiquement SQL Server : s'il est disponible, le mode **Live** s'active ;  
+sinon, les données **CSV** de `demo_data/` sont utilisées (mode Démo).
 
 ## Pages Dashboard
 

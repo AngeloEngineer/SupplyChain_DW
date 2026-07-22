@@ -80,7 +80,7 @@ def get_measure_definitions() -> list[dict]:
             "description": m.description,
             "format": m.format,
             "is_pct": m.is_pct,
-            "higher_is_better": "✅" if m.higher_is_better else "❌",
+            "higher_is_better": "Oui" if m.higher_is_better else "Non",
             "benchmark": f"{m.benchmark}%" if m.benchmark else "—",
         }
         for m in MEASURES.values()

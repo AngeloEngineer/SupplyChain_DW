@@ -1,2 +1,2 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(__file__))
+"""Dashboard package - re-exports the main dashboard module."""
+from .dashboard import *

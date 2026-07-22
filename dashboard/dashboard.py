@@ -1,9 +1,16 @@
+import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import pyodbc
 from datetime import datetime
+
+# pyodbc is optional (not available on Streamlit Cloud)
+try:
+    import pyodbc
+    HAS_PYODBC = True
+except ImportError:
+    HAS_PYODBC = False
 
 from data_model import HIERARCHIES, MEASURES, STAR_SCHEMA, RELATIONS
 from metrics_engine import MetricsEngine, AnomalyDetector, SegmentAnalyzer
@@ -15,34 +22,68 @@ from docs_view import (
 
 st.set_page_config(
     page_title="Supply Chain Intelligence",
-    page_icon="\U0001f4e6",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# ── Database config ────────────────────────────────────────
 DRIVER = "{ODBC Driver 17 for SQL Server}"
 SERVER = "ANGELO-DESKTOP"
 DATABASE = "SupplyChain_DW"
+DEMO_DIR = "demo_data"  # Fallback CSV folder for Streamlit Cloud
 
+# ── Connection (try SQL Server, return None if unavailable) ─
 def get_connection():
-    return pyodbc.connect(
-        f"DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};"
-        "Trusted_Connection=yes;TrustServerCertificate=yes;",
-        autocommit=True
-    )
+    if not HAS_PYODBC:
+        return None
+    try:
+        return pyodbc.connect(
+            f"DRIVER={DRIVER};SERVER={SERVER};DATABASE={DATABASE};"
+            "Trusted_Connection=yes;TrustServerCertificate=yes;",
+            autocommit=True, timeout=3
+        )
+    except Exception:
+        return None
 
-@st.cache_data(ttl=300)
-def query(sql):
-    with get_connection() as conn:
-        return pd.read_sql(sql, conn)
+# ── Data loading with SQL → CSV fallback ──────────────────
+DEMO_FILES = {
+    "summary":    "kpi_summary.csv",
+    "otif":       "kpi_otif_detail.csv",
+    "profit":     "kpi_profitability.csv",
+    "trends":     "adv_trends.csv",
+}
 
 @st.cache_data(ttl=300)
 def load_all_data():
-    df_summary = query("SELECT * FROM analytics.v_kpi_summary ORDER BY year, month")
-    df_otif = query("SELECT * FROM analytics.v_kpi_otif_detail ORDER BY year, month")
-    df_profit = query("SELECT * FROM analytics.v_kpi_profitability ORDER BY year, month")
-    df_trends = query("SELECT * FROM analytics.v_adv_trends ORDER BY year_month, market")
-    return df_summary, df_otif, df_profit, df_trends
+    conn = get_connection()
+    if conn is not None:
+        try:
+            df_summary = pd.read_sql("SELECT * FROM analytics.v_kpi_summary ORDER BY year, month", conn)
+            df_otif    = pd.read_sql("SELECT * FROM analytics.v_kpi_otif_detail ORDER BY year, month", conn)
+            df_profit  = pd.read_sql("SELECT * FROM analytics.v_kpi_profitability ORDER BY year, month", conn)
+            df_trends  = pd.read_sql("SELECT * FROM analytics.v_adv_trends ORDER BY year_month, market", conn)
+            conn.close()
+            st.session_state["mode"] = "live"
+            return df_summary, df_otif, df_profit, df_trends
+        except Exception:
+            conn.close()
+
+    # Fallback: load from CSV files (Streamlit Cloud / demo mode)
+    base = os.path.join(os.path.dirname(__file__), "..", DEMO_DIR)
+    try:
+        df_summary = pd.read_csv(os.path.join(base, DEMO_FILES["summary"]))
+        df_otif    = pd.read_csv(os.path.join(base, DEMO_FILES["otif"]))
+        df_profit  = pd.read_csv(os.path.join(base, DEMO_FILES["profit"]))
+        df_trends  = pd.read_csv(os.path.join(base, DEMO_FILES["trends"]))
+        st.session_state["mode"] = "demo"
+        return df_summary, df_otif, df_profit, df_trends
+    except FileNotFoundError:
+        st.error(
+            "Impossible de charger les données. "
+            "Aucune connexion SQL Server ni fichiers de démonstration trouvés."
+        )
+        st.stop()
 
 def fmt(value, prefix="$", decimals=0):
     if pd.isna(value):
@@ -58,8 +99,16 @@ def fmt_pct(value):
 
 df_summary, df_otif, df_profit, df_trends = load_all_data()
 
-st.sidebar.title("\U0001f4e6 Supply Chain DW")
+st.sidebar.title("Supply Chain DW")
 st.sidebar.markdown("### Dashboard Intelligence")
+
+# Mode indicator (live = SQL Server, demo = CSV fallback for Streamlit Cloud)
+mode = st.session_state.get("mode", "demo")
+if mode == "live":
+    st.sidebar.success("Mode Live (SQL Server)")
+else:
+    st.sidebar.info("Mode Demo (donnees statiques)")
+
 page = st.sidebar.radio(
     "Navigation",
     [
@@ -85,7 +134,7 @@ if not df_summary.empty:
 # PAGE 1 — VUE D'ENSEMBLE
 # ============================================================
 if page == "Vue d'ensemble":
-    st.title("\U0001f4ca Vue d'Ensemble — Supply Chain KPIs")
+    st.title("Vue d'Ensemble - Supply Chain KPIs")
 
     if not df_summary.empty:
         latest = df_summary.iloc[-1]
@@ -159,7 +208,7 @@ if page == "Vue d'ensemble":
 # PAGE 2 — STORYTELLING (Phase 11)
 # ============================================================
 elif page == "Storytelling":
-    st.title("\U0001f3f7️ Analyse Narrative — Insights & Recommandations")
+    st.title("Analyse Narrative - Insights & Recommandations")
 
     if df_summary.empty:
         st.warning("Aucune donnée")
@@ -180,7 +229,7 @@ elif page == "Storytelling":
 
     # Alertes
     st.markdown("---")
-    st.subheader("🔔 Alertes & Signaux Faibles")
+    st.subheader("Alertes & Signaux Faibles")
     alerts = storyteller.trend_alerts()
     if alerts:
         for alert in alerts:
@@ -197,7 +246,7 @@ elif page == "Storytelling":
 
     # Recommandations
     st.markdown("---")
-    st.subheader("🎯 Recommandations Actionnables")
+    st.subheader("Recommandations Actionnables")
     recs = storyteller.recommendations()
     if recs:
         for rec in recs:
@@ -213,7 +262,7 @@ elif page == "Storytelling":
 
     # Anomalies
     st.markdown("---")
-    st.subheader("📉 Anomalies Détectées (OTIF)")
+    st.subheader("Anomalies Detectees (OTIF)")
     detector = AnomalyDetector(df_summary, metric="otif_rate")
     anomalies = detector.detect_all()
     if anomalies:
@@ -225,7 +274,7 @@ elif page == "Storytelling":
     # Top / Bottom performers
     if not df_otif.empty:
         st.markdown("---")
-        st.subheader("🏆 Meilleurs & Moins Bonnes Performances")
+        st.subheader("Meilleurs & Moins Bonnes Performances")
         col_a, col_b = st.columns(2)
         with col_a:
             top = SegmentAnalyzer.top_n(df_otif, "market", "otif_rate", n=5)
@@ -244,7 +293,7 @@ elif page == "Storytelling":
 # PAGE 3 — OTIF DÉTAIL
 # ============================================================
 elif page == "OTIF Détail":
-    st.title("\u2705 Analyse OTIF Détail")
+    st.title("Analyse OTIF Detail")
 
     if df_otif.empty:
         st.warning("Aucune donnée disponible")
@@ -336,7 +385,7 @@ elif page == "OTIF Détail":
 # PAGE 4 — RENTABILITÉ
 # ============================================================
 elif page == "Rentabilité":
-    st.title("\U0001f4b0 Analyse de Rentabilité")
+    st.title("Analyse de Rentabilite")
 
     if df_profit.empty:
         st.warning("Aucune donnée disponible")
@@ -422,7 +471,7 @@ elif page == "Rentabilité":
 # PAGE 5 — TENDANCES AVANCÉES
 # ============================================================
 elif page == "Tendances":
-    st.title("\U0001f4c8 Tendances Avancées")
+    st.title("Tendances Avancees")
 
     if df_trends.empty:
         st.warning("Aucune donnée disponible")
@@ -516,7 +565,7 @@ elif page == "Tendances":
 # PAGE 6 — EXPLORATEUR DE DONNÉES
 # ============================================================
 elif page == "Explorateur":
-    st.title("\U0001f50d Explorateur de Données")
+    st.title("Explorateur de Donnees")
 
     views = {
         "KPIs Mensuels (v_kpi_summary)": "SELECT * FROM analytics.v_kpi_summary ORDER BY year, month",
@@ -558,7 +607,7 @@ elif page == "Explorateur":
 # PAGE 7 — DOCUMENTATION (Phase 12)
 # ============================================================
 elif page == "Documentation":
-    st.title("\U0001f4d6 Documentation Technique")
+    st.title("Documentation Technique")
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Catalogue", "Lineage", "Mesures", "Hiérarchies", "Runbook"
@@ -595,7 +644,7 @@ elif page == "Documentation":
                 st.markdown(f"**Format** : `{m_obj.format}`")
                 st.markdown(f"**Unité** : {m_obj.unit}")
                 st.markdown(f"**Objectif** : {f'{m_obj.benchmark}%' if m_obj.benchmark else 'Non défini'}")
-                st.markdown(f"**Sens** : {'📈 Plus haut = mieux' if m_obj.higher_is_better else '📉 Plus bas = mieux'}")
+                st.markdown(f"**Sens** : {'Plus haut = mieux' if m_obj.higher_is_better else 'Plus bas = mieux'}")
 
     with tab4:
         st.subheader("Hiérarchies Disponibles")
@@ -604,7 +653,7 @@ elif page == "Documentation":
 
         st.markdown("---")
         for h in HIERARCHIES:
-            with st.expander(f"🔽 {h.name} ({h.table})"):
+            with st.expander(f"{h.name} ({h.table})"):
                 st.markdown(f"**Description** : {h.description}")
                 st.markdown("**Niveaux :**")
                 for level in h.levels:
